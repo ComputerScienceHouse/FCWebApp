@@ -14,16 +14,14 @@ def needs_auth(func: WrappedFunc) -> WrappedFunc:
 
     @wraps(func)
     def wrapped_function(*args: list, **kwargs: dict) -> Any:
-        print('hello world')
+        if app.config['DEBUG']:
+            return func(*args, **kwargs)
         match session.get('provider'):
             case 'csh':
-                print('hi1')
                 csh_auth()
             case 'google':
-                print('hi2')
                 google_auth()
             case _:
-                print('hi')
                 return redirect(app.config['PROTOCOL'] + app.config['BASE_URL'], code=301)
         return func(*args, **kwargs)
 

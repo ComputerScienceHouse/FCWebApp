@@ -1,9 +1,8 @@
 import os
 
-from flask import Flask
+from flask import Flask,render_template
 from flask_pyoidc import OIDCAuthentication
 from flask_pyoidc.provider_configuration import ProviderConfiguration, ClientMetadata
-
 
 app = Flask(__name__)
 
@@ -13,12 +12,12 @@ app.config.from_pyfile(os.path.join(_root_dir, 'config.env.py'))
 DEBUG_MODE = app.config['DEBUG']
 
 CSH_AUTH_CONFIG = ProviderConfiguration(issuer=app.config['CSH_OIDC_ISSUER'],
-                                   client_metadata=ClientMetadata(app.config['CSH_OIDC_CLIENT_ID'],
-                                                                  app.config['CSH_OIDC_CLIENT_SECRET']))
+                                        client_metadata=ClientMetadata(app.config['CSH_OIDC_CLIENT_ID'],
+                                                                       app.config['CSH_OIDC_CLIENT_SECRET']))
 
 GOOGLE_AUTH_CONFIG = ProviderConfiguration(issuer=app.config['GGL_OIDC_ISSUER'],
-                                   client_metadata=ClientMetadata(app.config['GGL_OIDC_CLIENT_ID'],
-                                                                  app.config['GGL_OIDC_CLIENT_SECRET']))
+                                           client_metadata=ClientMetadata(app.config['GGL_OIDC_CLIENT_ID'],
+                                                                          app.config['GGL_OIDC_CLIENT_SECRET']))
 
 auth = OIDCAuthentication({'csh': CSH_AUTH_CONFIG, 'google': GOOGLE_AUTH_CONFIG}, app)
 
@@ -36,4 +35,4 @@ from fcwebapp.utils import needs_auth
 @app.route('/home')
 @needs_auth
 def home():
-    return "<h1>hey look it worked!</h1>"
+    return render_template('home.html', title='Home')

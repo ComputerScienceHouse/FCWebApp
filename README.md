@@ -22,7 +22,7 @@ Needs giant modal at the top of every friggin page (probably part of the imports
 ## Profile page
 Needs ALL the data if provider is Google auth.  Otherwise, only minimal emergency data.  
 It will display info from Profiles read-only, with a link to go edit it there.  
-Mandatory fields will be marked as red.  
+Mandatory fields will be marked as red, and will display a modal on every page until all data is verified.
 
 ## Admin Panel
 Lets you link to a Rideboard - this pulls the fall camping date  
