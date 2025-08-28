@@ -30,6 +30,7 @@ Holds "hitlist" for people who don't meet the requirements
 
 ## Profile Requirements  
 - Phone Number
+- Slack
 - First year at RIT
 - Full name
 - In Sleeping Board
