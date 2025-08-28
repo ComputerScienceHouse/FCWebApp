@@ -36,10 +36,12 @@ Holds "hitlist" for people who don't meet the requirements
 - In Sleeping Board
 - In Ride Board
 - Verified their information for the year
+- Privacy toggle on fields or account?
 
 ## Additional Profile Data
 - HAM Radio Handle 
 - Allergies / Dietary Restrictions
+- Personal Information field (health info, etc. etc.)
 - Server provided badges for Early Crew
 - Brandreth counter?
 
