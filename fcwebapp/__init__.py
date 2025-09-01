@@ -1,8 +1,11 @@
 import os
+from datetime import datetime
 
 from flask import Flask,render_template
 from flask_pyoidc import OIDCAuthentication
 from flask_pyoidc.provider_configuration import ProviderConfiguration, ClientMetadata
+
+from fcwebapp.models import UserInfo
 
 app = Flask(__name__)
 
@@ -34,5 +37,10 @@ from fcwebapp.utils import needs_auth
 
 @app.route('/home')
 @needs_auth
-def home():
-    return render_template('home.html', title='Home')
+def home(user:UserInfo):
+    return render_template('home.html', title='Home', user=user, year=datetime.now().year)
+
+@app.route('/sleeping_board')
+@needs_auth
+def sleeping_board(user:UserInfo):
+    return render_template('sleeping_board.html', title='Sleeping Board', user=user)

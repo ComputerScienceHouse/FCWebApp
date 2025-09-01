@@ -3,7 +3,7 @@ from typing import TypeVar, Callable, Any, cast
 
 from flask import session, redirect
 
-from fcwebapp import app, auth
+from fcwebapp import app, auth, UserInfo
 
 WrappedFunc = TypeVar('WrappedFunc', bound=Callable)
 
@@ -13,7 +13,7 @@ def needs_auth(func: WrappedFunc) -> WrappedFunc:
     Decorator for ensuring authentication    """
 
     @wraps(func)
-    def wrapped_function(*args: list, **kwargs: dict) -> Any:
+    def wrapped_function(*args: list, **kwargs: Any) -> Any:
         if app.config['DEBUG']:
             return func(*args, **kwargs)
         match session.get('provider'):
@@ -23,6 +23,9 @@ def needs_auth(func: WrappedFunc) -> WrappedFunc:
                 google_auth()
             case _:
                 return redirect(app.config['PROTOCOL'] + app.config['BASE_URL'], code=301)
+        oidc_info = session['userinfo']
+        # TODO: compute data for the user
+        kwargs['user']=UserInfo(oidc_info['uuid'], oidc_info['preferred_username'], oidc_info['name'], oidc_info['email'])
         return func(*args, **kwargs)
 
     return cast(WrappedFunc, wrapped_function)

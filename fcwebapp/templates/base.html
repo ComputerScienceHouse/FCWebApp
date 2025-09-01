@@ -29,31 +29,29 @@
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" href="https://getbootstrap.com/docs/4.0/getting-started/introduction/"
-                       target="_blank">Documentation</a>
+                    <a class="nav-link" href="/sleeping_board">Sleeping Board</a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" id="download">Resources <span
-                            class="caret"></span></a>
-                    <div class="dropdown-menu" aria-labelledby="download">
-                        <a class="dropdown-item" href="dist/csh-material-bootstrap.min.css">csh-material-bootstrap.min.css</a>
-                        <a class="dropdown-item" href="dist/csh-material-bootstrap.css">csh-material-bootstrap.css</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="src/_variables.scss">_variables.scss</a>
-                        <a class="dropdown-item" href="src/csh-material-bootstrap.scss">csh-material-bootstrap.scss</a>
-                    </div>
+                <li class="nav-item">
+                    <a class="nav-link" href="/profile">My Profile</a>
                 </li>
+                {% if user.is_admin %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/Admin">Admin Panel</a>
+                </li>
+                {% endif %}
             </ul>
         </div>
         <div id="theme-indicator"><span class="material-icons-outlined">dark_mode</span></div>
     </div>
 </nav>
 <main class="container">
+    {% if not user.met_requirements %}
     <div class="alert alert-dismissible alert-warning">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
         <h4 class="alert-heading">Warning!</h4>
         <p class="mb-0">You have not met one or more Fall Camping requirements. More shit goes here </p>
     </div>
+    {% endif %}
     {% block body %}
     {% endblock %}
 </main>
