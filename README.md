@@ -6,6 +6,14 @@ Ride data is with Rideboard
 Some data is specific to here (notably emergency contacts and allergies)  
 All data from not CSH auth also needs to go here
 
+### Build the guy
+`python -m venv .venv`  
+`source .venv\bin\activate`  
+`pip install -r requirements.txt`
+
+### Run the guy
+`flask --app fcwebapp run`
+
 ## Navbar
 This should have "TIME TIL FALL CAMPING" which counts down to when the rideboard is started.
 
