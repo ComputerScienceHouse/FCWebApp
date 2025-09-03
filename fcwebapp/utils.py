@@ -30,12 +30,11 @@ def needs_auth(func: WrappedFunc) -> WrappedFunc:
         oidc_info = session['userinfo']
         # TODO: compute data for the user
 
-        if oidc_info['uuid'] in users.keys():
-            kwargs['user']=users[oidc_info['uuid']]
-        else:
-            newuser=UserInfo(oidc_info['uuid'], oidc_info['preferred_username'], oidc_info['name'], oidc_info['email'])
-            kwargs['user']=newuser
-            users[newuser.uuid]=newuser
+        if oidc_info['uuid'] not in users:
+            users[oidc_info['uuid']]=UserInfo(oidc_info['uuid'], oidc_info['preferred_username'], oidc_info['name'], oidc_info['email'])
+
+        kwargs['user'] = users[oidc_info['uuid']]
+
         return func(*args, **kwargs)
 
     return cast(WrappedFunc, wrapped_function)
