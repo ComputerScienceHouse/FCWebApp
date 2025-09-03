@@ -29,12 +29,20 @@
         <td>
             {% for member in tent.occupants %}
             <a href="#" class="member text-secondary">{{member.name}}</a>,
-            {%endfor%}
+            {% endfor %}
         </td>
+        {% if user.occupying_uuid == None %}
         <td class="text-right">
             <span class="align-middle">Join</span>
             <span class="material-icons-outlined align-middle">add_circle</span>
         </td>
+        {% endif %}
+        {% if user.occupying_uuid == tent.occupying_uuid %}
+        <td class="text-right">
+            <span class="align-middle">Leave</span>
+            <span class="material-icons-outlined align-middle">minus_circle</span>
+        </td>
+        {% endif %}
     </tr>
     {% endfor %}
     <tr>

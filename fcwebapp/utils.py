@@ -4,6 +4,7 @@ from typing import TypeVar, Callable, Any, cast
 from flask import session, redirect
 
 from fcwebapp import app, auth, UserInfo
+from fcwebapp.models import users
 
 WrappedFunc = TypeVar('WrappedFunc', bound=Callable)
 
@@ -28,7 +29,13 @@ def needs_auth(func: WrappedFunc) -> WrappedFunc:
                 return redirect(app.config['PROTOCOL'] + app.config['BASE_URL'], code=301)
         oidc_info = session['userinfo']
         # TODO: compute data for the user
-        kwargs['user']=UserInfo(oidc_info['uuid'], oidc_info['preferred_username'], oidc_info['name'], oidc_info['email'])
+
+        if oidc_info['uuid'] in users.keys():
+            kwargs['user']=users[oidc_info['uuid']]
+        else:
+            newuser=UserInfo(oidc_info['uuid'], oidc_info['preferred_username'], oidc_info['name'], oidc_info['email'])
+            kwargs['user']=newuser
+            users[newuser.uuid]=newuser
         return func(*args, **kwargs)
 
     return cast(WrappedFunc, wrapped_function)

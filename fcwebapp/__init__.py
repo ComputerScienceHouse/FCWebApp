@@ -47,6 +47,7 @@ def home(user: UserInfo):
 @app.route('/sleeping_board')
 @needs_auth
 def sleeping_board(user: UserInfo):
+    print(user)
     return render_template('sleeping_board.html', title='Sleeping Board', user=user, tents=tents.values(), hammocks=hammocks.values())
 
 @app.route('/sleeping_board', methods=['POST'])
@@ -59,9 +60,12 @@ def sleeping_board_post(user: UserInfo):
             while new_uuid in hammocks.keys():
                 new_uuid = uuid.uuid4()
             hammocks[new_uuid] = Hammock(uuid=new_uuid, name=request.form.get('new-hammock-name'), occupant=user)
-            print(hammocks[new_uuid])
+            user.occupying_uuid = new_uuid
         case 'tent':
             while new_uuid in tents.keys():
                 new_uuid = uuid.uuid4()
             tents[new_uuid] = Tent(uuid=new_uuid, name=request.form.get('new-tent-name'), capacity=int(request.form.get('new-tent-cap')))
+        case _:
+            print("SOMEONE FUCKED UP AND IT'S NOT A TENT OR HAMMOCK")
+            return sleeping_board()
     return sleeping_board()
