@@ -53,7 +53,18 @@ def sleeping_board(user: UserInfo):
 @app.route('/sleeping_board', methods=['POST'])
 @needs_auth
 def sleeping_board_post(user: UserInfo):
-    sleeptype = next(iter(request.form.keys())).split('-')[1]
+    read_value = next(iter(request.form.keys())).split('-')
+    sleeptype = read_value[1]
+    if read_value[0] == 'join':
+        tent_id=uuid.UUID(request.form.get('join-tent-id'))
+        tents[tent_id].add_occupant(user)
+        user.occupying_uuid = tent_id
+        return sleeping_board()
+    if read_value[0] == 'leave':
+        tent_id=uuid.UUID(request.form.get('leave-tent-id'))
+        tents[tent_id].remove_occupant(user)
+        user.occupying_uuid = None
+        return sleeping_board()
     new_uuid = uuid.uuid4()
     match sleeptype:
         case 'hammock':
@@ -68,4 +79,4 @@ def sleeping_board_post(user: UserInfo):
         case _:
             print("SOMEONE FUCKED UP AND IT'S NOT A TENT OR HAMMOCK")
             return sleeping_board()
-    return sleeping_board()
+    return sleeping_board() #TODO: redirect to the same page so that way it doesn't try to do the thing
