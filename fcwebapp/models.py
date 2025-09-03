@@ -2,9 +2,45 @@ from uuid import UUID
 
 
 class UserInfo:
-    def __init__(self, uuid:UUID, username:str, name:str,  email:str):
-        self.uuid:UUID = uuid
+    def __init__(self, uuid: UUID, username: str, name: str, email: str):
+        self.uuid: UUID = uuid
         self.username = username
         self.name = name
+        self.email = email
         self.first_name = name.split()[0]
         self.met_requirements = False
+
+    def __eq__(self, other) -> bool:
+        if isinstance(other, UserInfo):
+            return self.uuid == other.uuid
+        return False
+
+
+class Tent:
+    def __init__(self, uuid: UUID, name: str, capacity: int, occupants: list[UserInfo] = None):
+        self.uuid: UUID = uuid
+        self.name = name
+        self.capacity = capacity
+        if not occupants:
+            occupants = []
+        self.occupants = occupants
+
+    def add_occupant(self, user: UserInfo):
+        self.occupants.append(user)
+
+    def remove_occupant(self, user: UserInfo):
+        self.occupants.remove(user)
+
+
+class Hammock:
+    def __init__(self, uuid: UUID, name: str, occupant: UserInfo):
+        self.uuid: UUID = uuid
+        self.name = name
+        self.occupant = occupant
+
+    def __str__(self):
+        return '{'+str(self.uuid)+'} '+ self.name +' '+self.occupant.name
+
+
+tents:dict[UUID,Tent] = {}
+hammocks:dict[UUID, Hammock] = {}

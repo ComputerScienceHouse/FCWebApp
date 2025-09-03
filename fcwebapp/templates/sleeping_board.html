@@ -5,20 +5,113 @@
 <h2>Put yourself in a tent, or add your own tent / hammock!</h2>
 <div style="height: 10vh"></div>
 <h2>Tents</h2>
-<p>Rideboard-style thing goes here</p>
-<button>Plus button, add your tent here!</button>
-<h2>Hammocks</h2>
-<table>
+<table class="table table-striped-columns">
     <thead>
     <tr>
-        Hammock Name
-    </tr>
-    <tr>
-        Member
+        <th>
+            Tent Name
+        </th>
+        <th class="col-sm-1">
+            Tent Capacity
+        </th>
+        <th>
+            Occupants
+        </th>
+        <th class="col-sm-1">
+        </th>
     </tr>
     </thead>
     <tbody>
-    For loop here.
+    {% for tent in tents %}
+    <tr>
+        <td>{{tent.name}}</td>
+        <td>{{len(tent.occupants)}}/{{tent.capacity}}</td>
+        <td>
+            {% for member in tent.occupants %}
+            <a href="#" class="member text-secondary">{{member.name}}</a>,
+            {%endfor%}
+        </td>
+        <td class="text-right">
+            <span class="align-middle">Join</span>
+            <span class="material-icons-outlined align-middle">add_circle</span>
+        </td>
+    </tr>
+    {% endfor %}
+    <tr>
+        <form class="form-inline" method="post">
+            <td class="py-0">
+                <label for="new-tent-name" hidden>New Tent</label>
+                <input id="new-tent-name" name="new-tent-name"
+                       class="form-control"
+                       type="text"
+                       placeholder="Add Tent Here!">
+            </td>
+            <td class="py-0">
+                <label for="new-tent-cap" hidden>Capacity</label>
+                <input id="new-tent-cap" name="new-tent-cap" type="number"
+                       class="form-control w-auto"
+                       placeholder="1">
+            </td>
+            <td class="py-0">
+
+            </td>
+            <td class="text-right">
+                <span class="align-middle">Add</span>
+                <button style="height: unset" id="new-tent-make"
+                        class="material-icons-outlined form-control w-auto custom-control-inline align-middle m-0 p-0">
+                    add_circle
+                </button>
+            </td>
+        </form>
+    </tr>
     </tbody>
 </table>
+
+<h2>Hammocks</h2>
+<table class="table table-striped-columns">
+    <thead>
+    <tr>
+        <th>
+            Hammock Name
+        </th>
+        <th>
+            Member
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for hammock in hammocks %}
+    <tr>
+        <td>
+            {{hammock.name}}
+        </td>
+        <td>
+            <a href="#" class="member text-secondary">{{hammock.occupant.name}}</a>
+        </td>
+    </tr>
+    {% endfor %}
+    <tr>
+        <form class="form-inline" method="post">
+            <td class="py-0">
+                <label for="new-hammock-name" hidden>New Hammock</label>
+                <input id="new-hammock-name" name="new-hammock-name"
+                       class="form-control"
+                       type="text"
+                       placeholder="Add Hammock Here!">
+            </td>
+            <td class="text-right">
+                <span class="align-middle">Add</span>
+                <button style="height: unset" id="new-hammock-make"
+                        class="material-icons-outlined form-control w-auto custom-control-inline align-middle m-0 p-0">
+                    add_circle
+                </button>
+            </td>
+        </form>
+    </tr>
+    </tbody>
+</table>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/sleeping_board.js') }}"></script>
 {% endblock %}

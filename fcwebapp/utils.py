@@ -7,6 +7,9 @@ from fcwebapp import app, auth, UserInfo
 
 WrappedFunc = TypeVar('WrappedFunc', bound=Callable)
 
+"""
+AUTHENTICATION STUFF
+"""
 
 def needs_auth(func: WrappedFunc) -> WrappedFunc:
     """
@@ -49,3 +52,11 @@ def csh_login():
 def google_login():
     session['provider'] = 'google'
     return redirect('/home', code=301)
+
+"""
+OTHER UTILS
+"""
+
+@app.context_processor
+def function_map():
+    return dict(len=len)
