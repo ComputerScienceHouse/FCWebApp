@@ -42,6 +42,7 @@ def index():
 
 
 from fcwebapp.utils import needs_auth
+from fcwebapp.db import init_db, add_hammock
 
 
 @app.route("/home")
@@ -68,15 +69,24 @@ def sleeping_board(user: UserInfo):
 @app.route("/sleeping_board", methods=["POST"])
 @needs_auth
 def sleeping_board_post(user: UserInfo):
-    sleeptype = next(iter(request.form.keys())).split("-")[1]
+    read_value = next(iter(request.form.keys())).split('-')
+    sleeptype = read_value[1]
+    if read_value[0] == 'join':
+        tent_id=uuid.UUID(request.form.get('join-tent-id'))
+        tents[tent_id].add_occupant(user)
+        user.occupying_uuid = tent_id
+        return sleeping_board()
+    if read_value[0] == 'leave':
+        tent_id=uuid.UUID(request.form.get('leave-tent-id'))
+        tents[tent_id].remove_occupant(user)
+        user.occupying_uuid = None
+        return sleeping_board()
     new_uuid = uuid.uuid4()
     match sleeptype:
         case "hammock":
             while new_uuid in hammocks.keys():
                 new_uuid = uuid.uuid4()
-            hammocks[new_uuid] = Hammock(
-                uuid=new_uuid, name=request.form.get("new-hammock-name"), occupant=user
-            )
+            add_hammock(Hammock(uuid=new_uuid, name=request.form.get('new-hammock-name'), occupant=user))
             user.occupying_uuid = new_uuid
         case "tent":
             while new_uuid in tents.keys():
@@ -96,3 +106,5 @@ def sleeping_board_post(user: UserInfo):
 @needs_auth
 def profiles(user: UserInfo):
     return render_template("profiles.html", title="Profile", user=user)
+
+init_db()

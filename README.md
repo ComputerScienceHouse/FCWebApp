@@ -18,9 +18,9 @@ All data from not CSH auth also needs to go here
 This should have "TIME TIL FALL CAMPING" which counts down to when the rideboard is started.
 
 ## Sleeping Board
-Holds all tents and hammocks, along with who is residing in which  
-Users can create tents and hammocks  
-And name it!! very important  
+✔️ Holds all tents and hammocks, along with who is residing in which  
+✔️ Users can create tents and hammocks  
+✔️ And name it!! very important  
 Also holds who needs tent
 
 ## Rideboard Integration

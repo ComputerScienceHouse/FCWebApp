@@ -16,3 +16,6 @@ CSH_OIDC_CLIENT_SECRET = environ.get("CSH_OIDC_CLIENT_SECRET", "")
 GGL_OIDC_ISSUER = environ.get("GGL_OIDC_ISSUER", "https://sso.csh.rit.edu/auth/realms/csh")
 GGL_OIDC_CLIENT_ID = environ.get("GGL_OIDC_CLIENT_ID", "a")
 GGL_OIDC_CLIENT_SECRET = environ.get("GGL_OIDC_CLIENT_SECRET", "b")
+
+# postgres
+DATABASE_URI = environ.get("DATABASE_URI", "")

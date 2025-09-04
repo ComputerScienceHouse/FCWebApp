@@ -31,16 +31,28 @@
             <a href="#" class="member text-secondary">{{member.name}}</a>,
             {% endfor %}
         </td>
-        {% if user.occupying_uuid == None %}
+        {% if user.occupying_uuid == None and len(tent.occupants) < tent.capacity %}
         <td class="text-right">
-            <span class="align-middle">Join</span>
-            <span class="material-icons-outlined align-middle">add_circle</span>
+            <form class="form-inline" method="post">
+                <input type="text" id="join-tent-id" name="join-tent-id" hidden value="{{tent.uuid}}">
+                <label class="align-middle">Join</label>
+                <button style="height: unset"
+                        class="material-icons-outlined form-control w-auto custom-control-inline align-middle m-0 p-0">
+                    add_circle
+                </button>
+            </form>
         </td>
         {% endif %}
-        {% if user.occupying_uuid == tent.occupying_uuid %}
+        {% if user.occupying_uuid == tent.uuid %}
         <td class="text-right">
-            <span class="align-middle">Leave</span>
-            <span class="material-icons-outlined align-middle">minus_circle</span>
+            <form class="form-inline" method="post">
+                <input type="text" id="leave-tent-id" name="leave-tent-id" hidden value="{{tent.uuid}}">
+                <label class="align-middle">Leave</label>
+                <button style="height: unset"
+                        class="material-icons-outlined form-control w-auto custom-control-inline align-middle m-0 p-0">
+                    do_not_disturb_on
+                </button>
+            </form>
         </td>
         {% endif %}
     </tr>
@@ -65,7 +77,7 @@
             </td>
             <td class="text-right">
                 <span class="align-middle">Add</span>
-                <button style="height: unset" id="new-tent-make"
+                <button style="height: unset"
                         class="material-icons-outlined form-control w-auto custom-control-inline align-middle m-0 p-0">
                     add_circle
                 </button>
@@ -98,6 +110,7 @@
         </td>
     </tr>
     {% endfor %}
+    {% if user.occupying_uuid == None %}
     <tr>
         <form class="form-inline" method="post">
             <td class="py-0">
@@ -116,6 +129,7 @@
             </td>
         </form>
     </tr>
+    {% endif %}
     </tbody>
 </table>
 {% endblock %}
