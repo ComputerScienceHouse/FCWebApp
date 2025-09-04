@@ -41,19 +41,18 @@
 <div class="profile-box">
   <div class="profile-name">{{ user.first_name }}'s Profile</div>
   <div class="user-data"><span>Full Name:</span> {{ user.name}}</div>
+  <div class="user-data"><span>Username:</span> {{ user.username}}</div>
   <div class="user-data"><span>Phone Number:</span> {{ user.phone_number }}</div>
 
   <class action="/update-phone" method="POST" id="phoneform">
     <input type="text" id="phoneform" name="phoneform" >
   </class>
   <div class="user-data"><span>Email:</span> {{ user.email }}</div>
-  <div class="user-data"><span>Username:</span> {{ user.username}}</div>
   <div class="user-data"><span>In Sleeping Board?</span> {{ user.in_sleeping }}</div>
   <div class="user-data"><span>In Ride Board?</span> {{ user.in_ride }}</div>
   <div class="user-data"><span>Met Requirements?</span> {{ user.met_requirements }}</div>
-  <div class="user-data"><span>Verified?</span> {{ user.verified }}</div>
   <button type="submit" class="phoneform">Enter Phone Number</button>
-  {% if not user.verified %}
+  {% if not user.met_requirements %}
   <button type="submit" class="verify">Verify</button>
   {% endif %}
 

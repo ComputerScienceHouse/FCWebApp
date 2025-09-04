@@ -24,7 +24,6 @@ class UserInfo:
         self.allergies = ""
         self.health = ""
         # TODO: Make diet and allergies arrays (so eventually a database can search by allergy)
-        self.verified = False
 
     def __eq__(self, other) -> bool:
         if isinstance(other, UserInfo):
