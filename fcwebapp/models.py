@@ -2,7 +2,14 @@ from uuid import UUID
 
 
 class UserInfo:
-    def __init__(self, uuid: UUID, username: str, name: str, email: str, occupying_uuid: UUID=None):
+    def __init__(
+        self,
+        uuid: UUID,
+        username: str,
+        name: str,
+        email: str,
+        occupying_uuid: UUID = None,
+    ):
         self.uuid: UUID = uuid
         self.username = username
         self.name = name
@@ -14,6 +21,13 @@ class UserInfo:
 
     def check(self):
         self.met_requirements = self.occupying_uuid is not None
+        self.phone_number = ""
+        self.in_sleeping = False
+        self.in_ride = False
+        self.diet = ""
+        self.allergies = ""
+        self.health = ""
+        # TODO: Make diet and allergies arrays (so eventually a database can search by allergy)
 
     def __eq__(self, other) -> bool:
         if isinstance(other, UserInfo):
@@ -21,11 +35,19 @@ class UserInfo:
         return False
 
     def __str__(self):
-        return self.username + ': ' + str(self.occupying_uuid) + ' ' + str(self.met_requirements)
+        return (
+            self.username
+            + ": "
+            + str(self.occupying_uuid)
+            + " "
+            + str(self.met_requirements)
+        )
 
 
 class Tent:
-    def __init__(self, uuid: UUID, name: str, capacity: int, occupants: list[UserInfo] = None):
+    def __init__(
+        self, uuid: UUID, name: str, capacity: int, occupants: list[UserInfo] = None
+    ):
         self.uuid: UUID = uuid
         self.name = name
         self.capacity = capacity
@@ -47,9 +69,9 @@ class Hammock:
         self.occupant = occupant
 
     def __str__(self):
-        return '{'+str(self.uuid)+'} '+ self.name +' '+self.occupant.name
+        return "{" + str(self.uuid) + "} " + self.name + " " + self.occupant.name
 
 
-users:dict[UUID, UserInfo] = {}
-tents:dict[UUID,Tent] = {}
-hammocks:dict[UUID, Hammock] = {}
+users: dict[UUID, UserInfo] = {}
+tents: dict[UUID, Tent] = {}
+hammocks: dict[UUID, Hammock] = {}

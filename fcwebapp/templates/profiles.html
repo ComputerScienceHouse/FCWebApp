@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block body %}
+<style>
+  .profile-box {
+    width: 400px; 
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+
+  }
+
+  .profile-name {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: black
+  }
+
+  .user-data {
+    font-size: 18px;
+    color: black
+  }
+  .extra-data{
+    
+    width: 400px; 
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    text-align: left;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+  }
+</style>
+
+<div class="profile-box">
+  <div class="profile-name">{{ user.first_name }}'s Profile</div>
+  <div class="user-data"><span>Full Name:</span> {{ user.name}}</div>
+  <div class="user-data"><span>Username:</span> {{ user.username}}</div>
+  <div class="user-data"><span>Phone Number:</span> {{ user.phone_number }}</div>
+
+  <class action="/update-phone" method="POST" id="phoneform">
+    <input type="text" id="phoneform" name="phoneform" >
+  </class>
+  <div class="user-data"><span>Email:</span> {{ user.email }}</div>
+  <div class="user-data"><span>In Sleeping Board?</span> {{ user.in_sleeping }}</div>
+  <div class="user-data"><span>In Ride Board?</span> {{ user.in_ride }}</div>
+  <div class="user-data"><span>Met Requirements?</span> {{ user.met_requirements }}</div>
+  <button type="submit" class="phoneform">Enter Phone Number</button>
+  {% if not user.met_requirements %}
+  <button type="submit" class="verify">Verify</button>
+  {% endif %}
+
+</div>
+<div class="extra-data">
+  <div class="user-data"><span>Dietary Restrictions?</span> {{ user.diet}}</div>
+  <class action="/update-diet" method="POST" id="diet">
+    <input type="text" id="diet" name="diet "placeholder = "(comma seperated)" >
+  </class>
+  <div class="user-data"><span>Allergies?</span> {{ user.allergies}}</div>
+  <class action="/update-allergies" method="POST" id="allergies">
+    <input type="text" id="allergies" name="allergies" placeholder="(comma seperated)" >
+  </class>
+  <div class="user-data"><span>Health?</span> {{ user.health}}</div>
+  <class action="/update-health" method="POST" id="health">
+    <input type="text" id="health" name="health" placeholder="(Diabetic, Asthma, etc)" >
+  </class>
+  <button type="submit">Submit Info</button>
+</div>
+{% endblock %}
