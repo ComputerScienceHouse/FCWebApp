@@ -21,6 +21,7 @@ class UserInfo:
         self.in_sleeping = False
         self.in_ride = False
         self.diet = ""
+        self.verified = False
 
     def __eq__(self, other) -> bool:
         if isinstance(other, UserInfo):
