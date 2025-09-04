@@ -22,6 +22,7 @@ class UserInfo:
         self.in_ride = False
         self.diet = ""
         self.allergies = ""
+        self.health = ""
         # TODO: Make diet and allergies arrays (so eventually a database can search by allergy)
         self.verified = False
 

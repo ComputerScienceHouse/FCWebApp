@@ -25,9 +25,6 @@
     font-size: 18px;
     color: black
   }
-  .phoneform{
-    text-align: center;
-  }
   .extra-data{
     
     width: 400px; 
@@ -63,6 +60,17 @@
 </div>
 <div class="extra-data">
   <div class="user-data"><span>Dietary Restrictions?</span> {{ user.diet}}</div>
+  <class action="/update-diet" method="POST" id="diet">
+    <input type="text" id="diet" name="diet "placeholder = "(comma seperated)" >
+  </class>
   <div class="user-data"><span>Allergies?</span> {{ user.allergies}}</div>
+  <class action="/update-allergies" method="POST" id="allergies">
+    <input type="text" id="allergies" name="allergies" placeholder="(comma seperated)" >
+  </class>
+  <div class="user-data"><span>Health?</span> {{ user.health}}</div>
+  <class action="/update-health" method="POST" id="health">
+    <input type="text" id="health" name="health" placeholder="(Diabetic, Asthma, etc)" >
+  </class>
+  <button type="submit">Submit Info</button>
 </div>
 {% endblock %}
