@@ -20,6 +20,7 @@ class UserInfo:
         self.phone_number = ""
         self.in_sleeping = False
         self.in_ride = False
+        self.diet = ""
 
     def __eq__(self, other) -> bool:
         if isinstance(other, UserInfo):
