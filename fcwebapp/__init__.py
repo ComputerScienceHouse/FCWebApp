@@ -36,6 +36,7 @@ def index():
 
 
 from fcwebapp.utils import needs_auth
+from fcwebapp.db import init_db, add_hammock
 
 
 @app.route('/home')
@@ -70,7 +71,7 @@ def sleeping_board_post(user: UserInfo):
         case 'hammock':
             while new_uuid in hammocks.keys():
                 new_uuid = uuid.uuid4()
-            hammocks[new_uuid] = Hammock(uuid=new_uuid, name=request.form.get('new-hammock-name'), occupant=user)
+            add_hammock(Hammock(uuid=new_uuid, name=request.form.get('new-hammock-name'), occupant=user))
             user.occupying_uuid = new_uuid
         case 'tent':
             while new_uuid in tents.keys():
@@ -80,3 +81,5 @@ def sleeping_board_post(user: UserInfo):
             print("SOMEONE FUCKED UP AND IT'S NOT A TENT OR HAMMOCK")
             return sleeping_board()
     return sleeping_board() #TODO: redirect to the same page so that way it doesn't try to do the thing
+
+init_db()

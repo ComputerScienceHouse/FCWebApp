@@ -9,6 +9,10 @@ class UserInfo:
         self.email = email
         self.first_name = name.split()[0]
         self.occupying_uuid = occupying_uuid
+        self.met_requirements = False
+        self.check()
+
+    def check(self):
         self.met_requirements = self.occupying_uuid is not None
 
     def __eq__(self, other) -> bool:
