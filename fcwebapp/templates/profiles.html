@@ -32,6 +32,11 @@
                 <div class="user-data"><span>Email: </span>{{ user.email }}</div>
                 <div class="user-data"><span>In Sleeping Board? </span>{{ user.occupying_uuid != None }}</div>
                 <div class="user-data"><span>In Ride Board? </span>{{ user.in_ride }}</div>
+<form action = "/profile/edit" method= "POST">
+    <input type = "checkbox" name= "in_ride_toggle" value = {{"off" if  user.in_ride else "on"}}
+
+    <input class = "form-control" type = "checkbox" id = "in_ride_toggle" name = "in_ride_toggle" value = "on" onchange = "this.form.submit()">
+</form>
             </div>
         </div>
     </div>
