@@ -25,13 +25,18 @@
                 <form class="form-inline" action="/profile/edit" method="POST">
                     <label for="phone_number">Update/Add Number</label>
                     <input class="form-control" type="text" id="phone_number" name="phone_number"
-                           placeholder="123-456-7890">
+                        placeholder="123-456-7890">
                     <button class="text-primary form-control material-icons-outlined" type="submit">assignment
                     </button>
                 </form>
                 <div class="user-data"><span>Email: </span>{{ user.email }}</div>
                 <div class="user-data"><span>In Sleeping Board? </span>{{ user.occupying_uuid != None }}</div>
                 <div class="user-data"><span>In Ride Board? </span>{{ user.in_ride }}</div>
+                <form action="/profile/edit" method="POST">
+                    <input type="checkbox" name="in_ride_toggle" value={{"off" if user.in_ride else "on" }} <input
+                        class="form-control" type="checkbox" id="in_ride_toggle" name="in_ride_toggle" value="on"
+                        onchange="this.form.submit()">
+                </form>
             </div>
         </div>
     </div>
@@ -40,11 +45,14 @@
             <div class="card-body">
                 <form action="/profile/edit" method="POST">
                     <div class="user-data"><span>Dietary Restrictions? </span></div>
-                    <input type="text" name="diet" placeholder="(comma seperated)" value="{{ user.diet if user.diet else '' }}">
+                    <input type="text" name="diet" placeholder="(comma seperated)"
+                        value="{{ user.diet if user.diet else '' }}">
                     <div class="user-data"><span>Allergies? </span></div>
-                    <input type="text" id="allergies" name="allergies" placeholder="(comma seperated)" value="{{ user.allergies if user.allergies else '' }}">
+                    <input type="text" id="allergies" name="allergies" placeholder="(comma seperated)"
+                        value="{{ user.allergies if user.allergies else '' }}">
                     <div class="user-data"><span>Health? </span></div>
-                    <input type="text" id="health" name="health" placeholder="(Diabetic, Asthma, etc)" value="{{ user.health if user.health else '' }}">
+                    <input type="text" id="health" name="health" placeholder="(Diabetic, Asthma, etc)"
+                        value="{{ user.health if user.health else '' }}">
                     <button type="submit">Submit Info</button>
                 </form>
             </div>
