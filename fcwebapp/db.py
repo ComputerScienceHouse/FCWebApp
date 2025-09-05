@@ -91,13 +91,16 @@ def add_user(user: UserInfo):
 def update_user(user: UserInfo):
     user.check()
     cursor = db.cursor()
-    fields = [sql.Identifier(k) for k in user.__dict__.keys() if k not in ('uuid', 'first_name', 'met_requirements')]
-    values = [v for k, v in user.__dict__.items() if k not in ('uuid', 'first_name', 'met_requirements')]
+    
+    # Dynamically build the query based on which fields are set (Syntax error if we try to stringify a sql.Identifier)
+    fields: list[sql.Identifier] = [sql.Identifier(k) for k in user.__dict__.keys() if k not in ('uuid', 'first_name', 'met_requirements')]
+    values: list[sql.Identifier] = [sql.Identifier(str(v)) for k, v in user.__dict__.items() if k not in ('uuid', 'first_name', 'met_requirements')]
 
-    set_clause = sql.SQL(', ').join(
+    set_clause: sql.SQL = sql.SQL(', ').join(
         sql.SQL("{} = %s").format(f) for f in fields
     )
-    query = sql.SQL("UPDATE users SET {} WHERE id = %s").format(set_clause)
+    query: sql.SQL = sql.SQL("UPDATE users SET {} WHERE id = %s").format(set_clause)
+
     values.append(user.uuid)
     try:
         cursor.execute(query, values)
