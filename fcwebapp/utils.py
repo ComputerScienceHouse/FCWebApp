@@ -27,7 +27,7 @@ def needs_auth(func: WrappedFunc) -> WrappedFunc:
                 csh_auth()
                 oidc_info = session['userinfo']
                 user_uuid = uuid.UUID(oidc_info['uuid'])
-                username = oidc_info['username']
+                username = oidc_info['preferred_username']
             case 'google':
                 if not google_auth():
                     return '''<h1>You're not authorized for this app.</h1>'''
