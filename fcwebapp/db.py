@@ -95,7 +95,7 @@ def update_user(user: UserInfo):
     for k, v in user.__dict__.items():
         if k in ['uuid', 'first_name', 'met_requirements']:
             continue
-        things.append(sql.Identifier(k) + ' = \'' + sql.Identifier(str(v)) + '\'')
+        things.append('{} = \'{}\''.format(sql.Identifier(k), sql.Identifier(str(v))))
     try:
         cursor.execute("UPDATE users SET {} WHERE id = %s".format(', '.join(things)), (user.uuid,))
         db.commit()
