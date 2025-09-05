@@ -8,6 +8,8 @@ from fcwebapp.models import users, Hammock, hammocks, Tent, tents
 
 db: psycopg2._psycopg.connection
 
+google_uuids: dict[str, uuid.UUID] = {}
+
 
 def init_db():
     global db
@@ -23,9 +25,17 @@ def init_db():
     do_init_func("CREATE TABLE IF NOT EXISTS tents (id uuid PRIMARY KEY, name varchar NOT NULL, capacity int NOT NULL)")
     do_init_func(
         "CREATE TABLE IF NOT EXISTS tent_occupants (tent_id uuid, occupant_id uuid UNIQUE, PRIMARY KEY(tent_id, occupant_id))")
+    do_init_func(
+        "CREATE TABLE IF NOT EXISTS google_uuid (sub varchar PRIMARY KEY, id uuid NOT NULL)"
+    )
 
     cursor = db.cursor()
     # LOAD DATA - users first, then other shit
+    cursor.execute("SELECT * FROM google_uuid")
+    entries = cursor.fetchall()
+    for annoying in entries:
+        google_uuids[annoying[0]] = annoying[1]
+
     cursor.execute("SELECT * FROM users")
     entries = cursor.fetchall()
     for person in entries:
@@ -39,7 +49,7 @@ def init_db():
 
     cursor.execute("SELECT * FROM tent_occupants")
     entries = cursor.fetchall()
-    occupancy:dict[uuid.UUID, list[UserInfo]] = {}
+    occupancy: dict[uuid.UUID, list[UserInfo]] = {}
     for tent_occupant in entries:
         if tent_occupant[0] not in occupancy:
             occupancy[tent_occupant[0]] = []
@@ -93,6 +103,18 @@ def update_user(user: UserInfo):
         db.rollback()
 
 
+def add_google_user(sub:str, newid:uuid.UUID):
+    cursor = db.cursor()
+    try:
+        cursor.execute("INSERT INTO google_uuid (sub, id) VALUES (%s, %s)",
+                       (sub, newid))
+        db.commit()
+    except Exception as e:
+        print(e)
+        db.rollback()
+    google_uuids[sub] = newid
+
+
 def add_hammock(hammock: Hammock):
     cursor = db.cursor()
     cursor.execute("INSERT INTO hammocks (id, name, occupant) VALUES (%s, %s, %s)",
@@ -115,12 +137,14 @@ def add_tent(tent: Tent):
     db.commit()
     tents[tent.uuid] = tent
 
+
 def join_tent(tent: Tent, user: UserInfo):
     cursor = db.cursor()
     cursor.execute("INSERT INTO tent_occupants (tent_id, occupant_id) VALUES (%s, %s)", (tent.uuid, user.uuid))
     tents[tent.uuid].add_occupant(user)
     user.occupying_uuid = tent.uuid
     update_user(user)
+
 
 def leave_tent(tent: Tent, user: UserInfo):
     cursor = db.cursor()

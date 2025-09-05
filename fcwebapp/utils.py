@@ -5,7 +5,7 @@ from typing import TypeVar, Callable, Any, cast
 from flask import session, redirect
 
 from fcwebapp import app, auth, UserInfo
-from fcwebapp.db import add_user
+from fcwebapp.db import add_user, google_uuids, add_google_user
 from fcwebapp.models import users
 
 WrappedFunc = TypeVar('WrappedFunc', bound=Callable)
@@ -20,20 +20,28 @@ def needs_auth(func: WrappedFunc) -> WrappedFunc:
 
     @wraps(func)
     def wrapped_function(*args: list, **kwargs: Any) -> Any:
-        if app.config['DEBUG']:
-            return func(*args, **kwargs)
+        # if app.config['DEBUG']:
+        #     return func(*args, **kwargs)
         match session.get('provider'):
             case 'csh':
                 csh_auth()
+                oidc_info = session['userinfo']
+                user_uuid = uuid.UUID(oidc_info['uuid'])
+                username = oidc_info['username']
             case 'google':
-                google_auth()
+                if not google_auth():
+                    return '''<h1>You're not authorized for this app.</h1>'''
+                oidc_info = session['userinfo']
+                sub = oidc_info['sub']
+                if sub not in google_uuids:
+                    add_google_user(sub, uuid.uuid4())
+                user_uuid = google_uuids[sub]
+                username = oidc_info['email'].split('@')[0]
             case _:
                 return redirect(app.config['PROTOCOL'] + app.config['BASE_URL'], code=301)
-        oidc_info = session['userinfo']
         # TODO: compute data for the user
-        user_uuid = uuid.UUID(oidc_info['uuid'])
         if user_uuid not in users:
-            add_user(UserInfo(user_uuid, oidc_info['preferred_username'], oidc_info['name'], oidc_info['email']))
+            add_user(UserInfo(user_uuid, username, oidc_info['name'], oidc_info['email']))
 
         kwargs['user'] = users[user_uuid]
 
@@ -47,7 +55,9 @@ def csh_auth():
 
 @auth.oidc_auth('google')
 def google_auth():
-    return
+    if session['userinfo']['email'].split('@')[1] != 'g.rit.edu':
+        return False
+    return True
 
 @app.route('/auth/csh')
 @auth.oidc_auth('csh')
