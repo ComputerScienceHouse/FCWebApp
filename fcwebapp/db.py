@@ -91,13 +91,16 @@ def add_user(user: UserInfo):
 def update_user(user: UserInfo):
     user.check()
     cursor = db.cursor()
-    things = []
-    for k, v in user.__dict__.items():
-        if k in ['uuid', 'first_name', 'met_requirements']:
-            continue
-        things.append('{} = \'{}\''.format(sql.Identifier(k), sql.Identifier(str(v))))
+    fields = [sql.Identifier(k) for k in user.__dict__.keys() if k not in ('uuid', 'first_name', 'met_requirements')]
+    values = [v for k, v in user.__dict__.items() if k not in ('uuid', 'first_name', 'met_requirements')]
+
+    set_clause = sql.SQL(', ').join(
+        sql.SQL("{} = %s").format(f) for f in fields
+    )
+    query = sql.SQL("UPDATE users SET {} WHERE id = %s").format(set_clause)
+    values.append(user.uuid)
     try:
-        cursor.execute("UPDATE users SET {} WHERE id = %s".format(', '.join(things)), (user.uuid,))
+        cursor.execute(query, values)
         db.commit()
     except Exception as e:
         print(e)
