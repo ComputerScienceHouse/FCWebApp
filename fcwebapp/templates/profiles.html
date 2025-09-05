@@ -64,11 +64,11 @@
             <div class="card-body">
                 <form action="/profile/edit" method="POST">
                     <div class="user-data"><span>Dietary Restrictions? </span></div>
-                    <input type="text" name="diet" placeholder="(comma seperated)" value="{{ user.diet if len(user.diet) > 0 else '' }}">
+                    <input type="text" name="diet" placeholder="(comma seperated)" value="{{ user.diet if user.diet else '' }}">
                     <div class="user-data"><span>Allergies? </span></div>
-                    <input type="text" id="allergies" name="allergies" placeholder="(comma seperated)" value="{{ user.allergies if len(user.allergies) > 0 else '' }}">
+                    <input type="text" id="allergies" name="allergies" placeholder="(comma seperated)" value="{{ user.allergies if user.allergies else '' }}">
                     <div class="user-data"><span>Health? </span></div>
-                    <input type="text" id="health" name="health" placeholder="(Diabetic, Asthma, etc)" value="{{ user.health if len(user.health) > 0 else '' }}">
+                    <input type="text" id="health" name="health" placeholder="(Diabetic, Asthma, etc)" value="{{ user.health if user.health else '' }}">
                     <button type="submit">Submit Info</button>
                 </form>
             </div>
