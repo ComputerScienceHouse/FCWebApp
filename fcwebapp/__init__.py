@@ -2,7 +2,7 @@ import os
 import uuid
 from datetime import datetime
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 from flask_pyoidc import OIDCAuthentication
 from flask_pyoidc.provider_configuration import ProviderConfiguration, ClientMetadata
 
@@ -42,7 +42,7 @@ def index():
 
 
 from fcwebapp.utils import needs_auth
-from fcwebapp.db import init_db, add_hammock
+from fcwebapp.db import init_db, add_hammock, update_user, join_tent, leave_tent, add_tent
 
 
 @app.route("/home")
@@ -72,39 +72,60 @@ def sleeping_board_post(user: UserInfo):
     read_value = next(iter(request.form.keys())).split('-')
     sleeptype = read_value[1]
     if read_value[0] == 'join':
-        tent_id=uuid.UUID(request.form.get('join-tent-id'))
-        tents[tent_id].add_occupant(user)
-        user.occupying_uuid = tent_id
-        return sleeping_board()
+        tent_id = uuid.UUID(request.form.get('join-tent-id'))
+        join_tent(tents[tent_id], user)
+        return redirect('/sleeping_board', code=302)
     if read_value[0] == 'leave':
-        tent_id=uuid.UUID(request.form.get('leave-tent-id'))
-        tents[tent_id].remove_occupant(user)
-        user.occupying_uuid = None
-        return sleeping_board()
+        tent_id = uuid.UUID(request.form.get('leave-tent-id'))
+        leave_tent(tents[tent_id], user)
+        return redirect('/sleeping_board', code=302)
     new_uuid = uuid.uuid4()
     match sleeptype:
         case "hammock":
+            if user.occupying_uuid is not None:
+                return redirect('/sleeping_board', code=302)
             while new_uuid in hammocks.keys():
                 new_uuid = uuid.uuid4()
             add_hammock(Hammock(uuid=new_uuid, name=request.form.get('new-hammock-name'), occupant=user))
             user.occupying_uuid = new_uuid
+            update_user(user)
         case "tent":
             while new_uuid in tents.keys():
                 new_uuid = uuid.uuid4()
-            tents[new_uuid] = Tent(
+            add_tent(Tent(
                 uuid=new_uuid,
                 name=request.form.get("new-tent-name"),
                 capacity=int(request.form.get("new-tent-cap")),
-            )
+            ))
         case _:
             print("SOMEONE FUCKED UP AND IT'S NOT A TENT OR HAMMOCK")
-            return sleeping_board()
-    return sleeping_board()
+            return redirect('/sleeping_board', code=302)
+    return redirect('/sleeping_board', code=302)
 
 
 @app.route("/profile")
 @needs_auth
 def profiles(user: UserInfo):
     return render_template("profiles.html", title="Profile", user=user)
+
+@app.route("/profile/edit", methods=["POST"])
+@needs_auth
+def profile_edit(user: UserInfo):
+    for k, v in request.form.items():
+        print(k, v)
+        match k:
+            case "phone_number":
+                num = v.strip().replace(" ", "").replace("-", "").replace("_", "")
+                user.phone_number = num
+            case "allergy":
+                user.allergy = v
+            case "diet":
+                user.diet = v
+            case "health":
+                user.health = v
+            case _:
+                return redirect("/profile", code=302)
+        update_user(user)
+    return redirect('/profile', code=302)
 
 init_db()

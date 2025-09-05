@@ -1,9 +1,11 @@
+import uuid
 from functools import wraps
 from typing import TypeVar, Callable, Any, cast
 
 from flask import session, redirect
 
 from fcwebapp import app, auth, UserInfo
+from fcwebapp.db import add_user
 from fcwebapp.models import users
 
 WrappedFunc = TypeVar('WrappedFunc', bound=Callable)
@@ -29,11 +31,12 @@ def needs_auth(func: WrappedFunc) -> WrappedFunc:
                 return redirect(app.config['PROTOCOL'] + app.config['BASE_URL'], code=301)
         oidc_info = session['userinfo']
         # TODO: compute data for the user
+        user_uuid = uuid.UUID(oidc_info['uuid'])
+        if user_uuid not in users:
+            add_user(UserInfo(user_uuid, oidc_info['preferred_username'], oidc_info['name'], oidc_info['email']))
 
-        if oidc_info['uuid'] not in users:
-            users[oidc_info['uuid']]=UserInfo(oidc_info['uuid'], oidc_info['preferred_username'], oidc_info['name'], oidc_info['email'])
-
-        kwargs['user'] = users[oidc_info['uuid']]
+        kwargs['user'] = users[user_uuid]
+        print(users[user_uuid].__dict__)
 
         return func(*args, **kwargs)
 

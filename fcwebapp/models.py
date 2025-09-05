@@ -3,12 +3,17 @@ from uuid import UUID
 
 class UserInfo:
     def __init__(
-        self,
-        uuid: UUID,
-        username: str,
-        name: str,
-        email: str,
-        occupying_uuid: UUID = None,
+            self,
+            uuid: UUID,
+            username: str,
+            name: str,
+            email: str,
+            occupying_uuid: UUID = None,
+            phone_number: str = None,
+            in_ride: bool = False,
+            diet: str = None,
+            allergies: str = None,
+            health: str = None,
     ):
         self.uuid: UUID = uuid
         self.username = username
@@ -16,17 +21,16 @@ class UserInfo:
         self.email = email
         self.first_name = name.split()[0]
         self.occupying_uuid = occupying_uuid
+        self.phone_number = phone_number
+        self.in_ride = in_ride
+        self.diet = diet
+        self.allergies = allergies
+        self.health = health
         self.met_requirements = False
         self.check()
 
     def check(self):
-        self.met_requirements = self.occupying_uuid is not None
-        self.phone_number = ""
-        self.in_sleeping = False
-        self.in_ride = False
-        self.diet = ""
-        self.allergies = ""
-        self.health = ""
+        self.met_requirements = self.occupying_uuid is not None and self.phone_number != "" and self.in_ride
         # TODO: Make diet and allergies arrays (so eventually a database can search by allergy)
 
     def __eq__(self, other) -> bool:
@@ -36,17 +40,17 @@ class UserInfo:
 
     def __str__(self):
         return (
-            self.username
-            + ": "
-            + str(self.occupying_uuid)
-            + " "
-            + str(self.met_requirements)
+                self.username
+                + ": "
+                + str(self.occupying_uuid)
+                + " "
+                + str(self.met_requirements)
         )
 
 
 class Tent:
     def __init__(
-        self, uuid: UUID, name: str, capacity: int, occupants: list[UserInfo] = None
+            self, uuid: UUID, name: str, capacity: int, occupants: list[UserInfo] = None
     ):
         self.uuid: UUID = uuid
         self.name = name

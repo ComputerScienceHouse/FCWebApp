@@ -1,35 +1,96 @@
+import uuid
+
 import psycopg2
 import psycopg2.extras
 
-from fcwebapp import app
-from fcwebapp.models import users, Hammock, hammocks
-
+from fcwebapp import app, UserInfo
+from fcwebapp.models import users, Hammock, hammocks, Tent, tents
 
 db: psycopg2._psycopg.connection
+
 
 def init_db():
     global db
     db = psycopg2.connect(app.config['DATABASE_URI'])
     psycopg2.extras.register_uuid()
+
+    do_init_func(
+        "CREATE TABLE IF NOT EXISTS hammocks (id uuid PRIMARY KEY, name varchar NOT NULL, occupant uuid NOT NULL)")
+    do_init_func(
+        "CREATE TABLE IF NOT EXISTS users (id uuid PRIMARY KEY, username varchar NOT NULL, name varchar NOT NULL, "
+        "email varchar NOT NULL, occupying_uuid uuid, phone_number varchar, in_ride bool, diet text, "
+        "allergies text, health text)")
+    do_init_func("CREATE TABLE IF NOT EXISTS tents (id uuid PRIMARY KEY, name varchar NOT NULL, capacity int NOT NULL)")
+    do_init_func(
+        "CREATE TABLE IF NOT EXISTS tent_occupants (tent_id uuid, occupant_id uuid UNIQUE, PRIMARY KEY(tent_id, occupant_id))")
+
     cursor = db.cursor()
-    do_init_func(cursor, "CREATE TABLE hammocks (id uuid PRIMARY KEY, name varchar NOT NULL, occupant uuid NOT NULL)")
-    db.commit()
-
-
     # LOAD DATA - users first, then other shit
+    cursor.execute("SELECT * FROM users")
+    entries = cursor.fetchall()
+    for person in entries:
+        users[person[0]] = UserInfo(person[0], person[1], person[2], person[3], person[4], person[5], person[6],
+                                    person[7], person[8], person[9])
+
     cursor.execute("SELECT * FROM hammocks")
     entries = cursor.fetchall()
     for hammock in entries:
         hammocks[hammock[0]] = Hammock(hammock[0], hammock[1], users[hammock[2]])
 
+    cursor.execute("SELECT * FROM tent_occupants")
+    entries = cursor.fetchall()
+    occupancy:dict[uuid.UUID, list[UserInfo]] = {}
+    for tent_occupant in entries:
+        if tent_occupant[0] not in occupancy:
+            occupancy[tent_occupant[0]] = []
+        occupancy[tent_occupant[0]].append(users[tent_occupant[1]])
+
+    cursor.execute("SELECT * FROM tents")
+    entries = cursor.fetchall()
+    for tent in entries:
+        tents[tent[0]] = Tent(tent[0], tent[1], tent[2], occupancy[tent[0]])
 
 
 # Effectively does implicit migrations every boot
-def do_init_func(cursor: psycopg2._psycopg.cursor, sql: str):
+def do_init_func(sql: str):
     try:
+        cursor = db.cursor()
         cursor.execute(sql)
-    except psycopg2.errors.DuplicateTable as e:
+        db.commit()
+    except psycopg2.errors.DuplicateTable:
+        pass
+    except Exception as e:
+        print(e)
+    db.rollback()
+
+
+def add_user(user: UserInfo):
+    cursor = db.cursor()
+    try:
+        cursor.execute("INSERT INTO users (id, username, name, email) VALUES (%s, %s, %s, %s)",
+                       (user.uuid, user.username, user.name, user.email))
+    except Exception as e:
+        print(e)
+        db.rollback()
         return
+    db.commit()
+    users[user.uuid] = user
+
+
+def update_user(user: UserInfo):
+    user.check()
+    cursor = db.cursor()
+    things = []
+    for k, v in user.__dict__.items():
+        if k in ['uuid', 'first_name', 'met_requirements']:
+            continue
+        things.append(k + ' = \'' + str(v) + '\'')
+    try:
+        cursor.execute("UPDATE users SET {} WHERE id = %s".format(', '.join(things)), (user.uuid,))
+        db.commit()
+    except Exception as e:
+        print(e)
+        db.rollback()
 
 
 def add_hammock(hammock: Hammock):
@@ -39,9 +100,31 @@ def add_hammock(hammock: Hammock):
     db.commit()
     hammocks[hammock.uuid] = hammock
 
+
 def rm_hammock(hammock: Hammock):
     cursor = db.cursor()
     cursor.execute("DELETE FROM hammocks WHERE uuid = %s",
                    (hammock.uuid,))
     db.commit()
     hammocks.pop(hammock.uuid)
+
+
+def add_tent(tent: Tent):
+    cursor = db.cursor()
+    cursor.execute("INSERT INTO tents (id, name, capacity) VALUES (%s, %s, %s)", (tent.uuid, tent.name, tent.capacity))
+    db.commit()
+    tents[tent.uuid] = tent
+
+def join_tent(tent: Tent, user: UserInfo):
+    cursor = db.cursor()
+    cursor.execute("INSERT INTO tent_occupants (tent_id, occupant_id) VALUES (%s, %s)", (tent.uuid, user.uuid))
+    tents[tent.uuid].add_occupant(user)
+    user.occupying_uuid = tent.uuid
+    update_user(user)
+
+def leave_tent(tent: Tent, user: UserInfo):
+    cursor = db.cursor()
+    cursor.execute("DELETE FROM tent_occupants WHERE tent_id = %s AND occupant_id = %s", (tent.uuid, user.uuid))
+    tents[tent.uuid].remove_occupant(user)
+    user.occupying_uuid = None
+    update_user(user)
