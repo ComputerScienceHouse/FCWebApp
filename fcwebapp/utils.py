@@ -36,7 +36,6 @@ def needs_auth(func: WrappedFunc) -> WrappedFunc:
             add_user(UserInfo(user_uuid, oidc_info['preferred_username'], oidc_info['name'], oidc_info['email']))
 
         kwargs['user'] = users[user_uuid]
-        print(users[user_uuid].__dict__)
 
         return func(*args, **kwargs)
 
