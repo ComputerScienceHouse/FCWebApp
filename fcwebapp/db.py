@@ -58,7 +58,7 @@ def init_db():
     cursor.execute("SELECT * FROM tents")
     entries = cursor.fetchall()
     for tent in entries:
-        tents[tent[0]] = Tent(tent[0], tent[1], tent[2], occupancy[tent[0]])
+        tents[tent[0]] = Tent(tent[0], tent[1], tent[2], occupancy.get(tent[0]))
 
 
 # Effectively does implicit migrations every boot
@@ -103,7 +103,7 @@ def update_user(user: UserInfo):
         db.rollback()
 
 
-def add_google_user(sub:str, newid:uuid.UUID):
+def add_google_user(sub: str, newid: uuid.UUID):
     cursor = db.cursor()
     try:
         cursor.execute("INSERT INTO google_uuid (sub, id) VALUES (%s, %s)",
