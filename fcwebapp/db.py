@@ -2,6 +2,7 @@ import uuid
 
 import psycopg2
 import psycopg2.extras
+from psycopg2 import sql
 
 from fcwebapp import app, UserInfo
 from fcwebapp.models import users, Hammock, hammocks, Tent, tents
@@ -94,7 +95,7 @@ def update_user(user: UserInfo):
     for k, v in user.__dict__.items():
         if k in ['uuid', 'first_name', 'met_requirements']:
             continue
-        things.append(k + ' = \'' + str(v) + '\'')
+        things.append(sql.Identifier(k) + ' = \'' + sql.Identifier(str(v)) + '\'')
     try:
         cursor.execute("UPDATE users SET {} WHERE id = %s".format(', '.join(things)), (user.uuid,))
         db.commit()
