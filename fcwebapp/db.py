@@ -71,7 +71,7 @@ def do_init_func(sql: str):
         pass
     except Exception as e:
         print(e)
-    db.rollback()
+        db.rollback()
 
 
 def add_user(user: UserInfo):
@@ -79,12 +79,12 @@ def add_user(user: UserInfo):
     try:
         cursor.execute("INSERT INTO users (id, username, name, email) VALUES (%s, %s, %s, %s)",
                        (user.uuid, user.username, user.name, user.email))
+        db.commit()
+        users[user.uuid] = user
     except Exception as e:
         print(e)
         db.rollback()
-        return
-    db.commit()
-    users[user.uuid] = user
+
 
 
 def update_user(user: UserInfo):
@@ -117,46 +117,66 @@ def add_google_user(sub: str, newid: uuid.UUID):
         cursor.execute("INSERT INTO google_uuid (sub, id) VALUES (%s, %s)",
                        (sub, newid))
         db.commit()
+        google_uuids[sub] = newid
     except Exception as e:
         print(e)
         db.rollback()
-    google_uuids[sub] = newid
 
 
 def add_hammock(hammock: Hammock):
     cursor = db.cursor()
-    cursor.execute("INSERT INTO hammocks (id, name, occupant) VALUES (%s, %s, %s)",
-                   (hammock.uuid, hammock.name, hammock.occupant.uuid))
-    db.commit()
-    hammocks[hammock.uuid] = hammock
+    try:
+        cursor.execute("INSERT INTO hammocks (id, name, occupant) VALUES (%s, %s, %s)",
+                       (hammock.uuid, hammock.name, hammock.occupant.uuid))
+        db.commit()
+        hammocks[hammock.uuid] = hammock
+    except Exception as e:
+        print(e)
+        db.rollback()
 
 
 def rm_hammock(hammock: Hammock):
     cursor = db.cursor()
-    cursor.execute("DELETE FROM hammocks WHERE uuid = %s",
-                   (hammock.uuid,))
-    db.commit()
-    hammocks.pop(hammock.uuid)
+    try:
+        cursor.execute("DELETE FROM hammocks WHERE uuid = %s",
+                       (hammock.uuid,))
+        db.commit()
+        hammocks.pop(hammock.uuid)
+    except Exception as e:
+        print(e)
+        db.rollback()
 
 
 def add_tent(tent: Tent):
     cursor = db.cursor()
-    cursor.execute("INSERT INTO tents (id, name, capacity) VALUES (%s, %s, %s)", (tent.uuid, tent.name, tent.capacity))
-    db.commit()
-    tents[tent.uuid] = tent
+    try:
+        cursor.execute("INSERT INTO tents (id, name, capacity) VALUES (%s, %s, %s)", (tent.uuid, tent.name, tent.capacity))
+        db.commit()
+        tents[tent.uuid] = tent
+    except Exception as e:
+        print(e)
+        db.rollback()
 
 
 def join_tent(tent: Tent, user: UserInfo):
     cursor = db.cursor()
-    cursor.execute("INSERT INTO tent_occupants (tent_id, occupant_id) VALUES (%s, %s)", (tent.uuid, user.uuid))
-    tents[tent.uuid].add_occupant(user)
-    user.occupying_uuid = tent.uuid
-    update_user(user)
+    try:
+        cursor.execute("INSERT INTO tent_occupants (tent_id, occupant_id) VALUES (%s, %s)", (tent.uuid, user.uuid))
+        tents[tent.uuid].add_occupant(user)
+        user.occupying_uuid = tent.uuid
+        update_user(user)
+    except Exception as e:
+        print(e)
+        db.rollback()
 
 
 def leave_tent(tent: Tent, user: UserInfo):
     cursor = db.cursor()
-    cursor.execute("DELETE FROM tent_occupants WHERE tent_id = %s AND occupant_id = %s", (tent.uuid, user.uuid))
-    tents[tent.uuid].remove_occupant(user)
-    user.occupying_uuid = None
-    update_user(user)
+    try:
+        cursor.execute("DELETE FROM tent_occupants WHERE tent_id = %s AND occupant_id = %s", (tent.uuid, user.uuid))
+        tents[tent.uuid].remove_occupant(user)
+        user.occupying_uuid = None
+        update_user(user)
+    except Exception as e:
+        print(e)
+        db.rollback()
