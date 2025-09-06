@@ -92,18 +92,20 @@ def update_user(user: UserInfo):
     user.check()
     cursor = db.cursor()
     
-    # Dynamically build the query based on which fields are set (Syntax error if we try to stringify a sql.Identifier)
-    fields: list[sql.Identifier] = [sql.Identifier(k) for k in user.__dict__.keys() if k not in ('uuid', 'first_name', 'met_requirements')]
-    values: list[sql.Identifier] = [sql.Identifier(str(v)) for k, v in user.__dict__.items() if k not in ('uuid', 'first_name', 'met_requirements')]
+    fields: list[str] = []
+    values: list[str] = []
 
-    set_clause: sql.SQL = sql.SQL(', ').join(
-        sql.SQL("{} = %s").format(f) for f in fields
-    )
-    query: sql.SQL = sql.SQL("UPDATE users SET {} WHERE id = %s").format(set_clause)
+    for k, v in user.__dict__.items():
+        if k in ['uuid', 'first_name', 'met_requirements']:
+            continue
 
+        fields.append(f"{k} = %s")
+        values.append(v)
+
+    set_clause: str = ', '.join(fields)
     values.append(user.uuid)
     try:
-        cursor.execute(query, values)
+        cursor.execute(f"UPDATE users SET {set_clause} WHERE id = %s", tuple(values))
         db.commit()
     except Exception as e:
         print(e)
