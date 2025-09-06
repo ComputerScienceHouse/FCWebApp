@@ -2,7 +2,6 @@ import uuid
 
 import psycopg2
 import psycopg2.extras
-from psycopg2 import sql
 
 from fcwebapp import app, UserInfo
 from fcwebapp.models import users, Hammock, hammocks, Tent, tents
@@ -91,7 +90,7 @@ def add_user(user: UserInfo):
 def update_user(user: UserInfo):
     user.check()
     cursor = db.cursor()
-    
+
     fields: list[str] = []
     values: list[str] = []
 
