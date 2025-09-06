@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  fcwebapp:
+    build:
+      context: .
+      dockerfile: Containerfile
+    ports:
+      - "8000:8000"
+    environment:
+      CSH_OIDC_ISSUER: ${CSH_OIDC_ISSUER}
+      CSH_OIDC_CLIENT_ID: ${CSH_OIDC_CLIENT_ID}
+      CSH_OIDC_CLIENT_SECRET: ${CSH_OIDC_CLIENT_SECRET}
+      SECRET_KEY: ${SECRET_KEY}
+      DATABASE_URI: postgresql://fcwebapp:password@localhost/fcwebapp
+      BASE_URL: ${BASE_URL}
+      GGL_OIDC_ISSUER: ${GGL_OIDC_ISSUER}
+      GGL_OIDC_CLIENT_ID: ${GGL_OIDC_CLIENT_ID}
+      GGL_OIDC_CLIENT_SECRET: ${GGL_OIDC_CLIENT_SECRET}
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    environment:
+      POSTGRES_USER: fcwebapp
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: fcwebapp
+    command: ["postgres", "-c", "log_statement=all"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  pgdata:

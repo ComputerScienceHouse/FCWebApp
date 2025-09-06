@@ -90,13 +90,21 @@ def add_user(user: UserInfo):
 def update_user(user: UserInfo):
     user.check()
     cursor = db.cursor()
-    things = []
+
+    fields: list[str] = []
+    values: list[str] = []
+
     for k, v in user.__dict__.items():
         if k in ['uuid', 'first_name', 'met_requirements']:
             continue
-        things.append(k + ' = \'' + str(v) + '\'')
+
+        fields.append(f"{k} = %s")
+        values.append(v)
+
+    set_clause: str = ', '.join(fields)
+    values.append(user.uuid)
     try:
-        cursor.execute("UPDATE users SET {} WHERE id = %s".format(', '.join(things)), (user.uuid,))
+        cursor.execute(f"UPDATE users SET {set_clause} WHERE id = %s", tuple(values))
         db.commit()
     except Exception as e:
         print(e)
