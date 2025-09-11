@@ -2,6 +2,7 @@ import uuid
 from functools import wraps
 from typing import TypeVar, Callable, Any, cast
 
+import requests
 from flask import session, redirect
 
 from fcwebapp import app, auth, UserInfo
@@ -13,6 +14,7 @@ WrappedFunc = TypeVar('WrappedFunc', bound=Callable)
 """
 AUTHENTICATION STUFF
 """
+
 
 def needs_auth(func: WrappedFunc) -> WrappedFunc:
     """
@@ -49,9 +51,11 @@ def needs_auth(func: WrappedFunc) -> WrappedFunc:
 
     return cast(WrappedFunc, wrapped_function)
 
+
 @auth.oidc_auth('csh')
 def csh_auth():
     return
+
 
 @auth.oidc_auth('google')
 def google_auth():
@@ -59,11 +63,13 @@ def google_auth():
         return False
     return True
 
+
 @app.route('/auth/csh')
 @auth.oidc_auth('csh')
 def csh_login():
     session['provider'] = 'csh'
     return redirect('/home', code=301)
+
 
 @app.route('/auth/google')
 @auth.oidc_auth('google')
@@ -71,9 +77,37 @@ def google_login():
     session['provider'] = 'google'
     return redirect('/home', code=301)
 
+
 """
 OTHER UTILS
 """
+
+_access_token = ''
+
+
+def oidc_service_account_login():
+    global _access_token
+    r = requests.post(app.config['CSH_OIDC_ISSUER'] + '/protocol/openid-connect/token',
+                      data={'grant_type': 'client_credentials',
+                            'client_id': app.config['CSH_OIDC_CLIENT_ID'],
+                            'client_secret': app.config['CSH_OIDC_CLIENT_SECRET']},
+                      headers={'Content-Type': 'application/x-www-form-urlencoded'})
+    _access_token = r.json()['access_token']
+
+
+def get_token():
+    global _access_token
+    r = requests.get(app.config['CSH_OIDC_ISSUER'] + '/protocol/openid-connect/userinfo',
+                     headers={'Authorization': 'Bearer {}'.format(_access_token)})
+    if r.status_code != 200:
+        oidc_service_account_login()
+    r = requests.get(app.config['CSH_OIDC_ISSUER'] + '/protocol/openid-connect/userinfo',
+                     headers={'Authorization': 'Bearer {}'.format(_access_token)})
+    if r.status_code != 200:
+        print(r.text)
+        return None
+    return {'Authorization': 'Bearer {}'.format(_access_token)}
+
 
 @app.context_processor
 def function_map():

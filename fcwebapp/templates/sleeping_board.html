@@ -11,7 +11,7 @@
         <th>
             Tent Name
         </th>
-        <th class="col-sm-1">
+        <th class="col-sm-2">
             Tent Capacity
         </th>
         <th>
@@ -42,8 +42,7 @@
                 </button>
             </form>
         </td>
-        {% endif %}
-        {% if user.occupying_uuid == tent.uuid %}
+        {% elif user.occupying_uuid == tent.uuid %}
         <td class="text-right">
             <form class="form-inline" method="post">
                 <input type="text" id="leave-tent-id" name="leave-tent-id" hidden value="{{tent.uuid}}">
@@ -54,6 +53,10 @@
                 </button>
             </form>
         </td>
+        {% else %}
+        <td class="text-right">
+
+        </td>
         {% endif %}
     </tr>
     {% endfor %}
@@ -62,20 +65,20 @@
             <td class="py-0">
                 <label for="new-tent-name" hidden>New Tent</label>
                 <input id="new-tent-name" name="new-tent-name"
-                       class="form-control"
+                       class="form-control text-secondary"
                        type="text"
                        placeholder="Add Tent Here!">
             </td>
             <td class="py-0">
                 <label for="new-tent-cap" hidden>Capacity</label>
                 <input id="new-tent-cap" name="new-tent-cap" type="number"
-                       class="form-control w-auto"
+                       class="form-control w-auto text-secondary" min="1" max="99"
                        placeholder="1">
             </td>
             <td class="py-0">
 
             </td>
-            <td class="text-right">
+            <td class="">
                 <span class="align-middle">Add</span>
                 <button style="height: unset"
                         class="material-icons-outlined form-control w-auto custom-control-inline align-middle m-0 p-0">
