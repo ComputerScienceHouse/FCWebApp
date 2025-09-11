@@ -43,14 +43,7 @@ def index():
 
 
 from fcwebapp.utils import needs_auth
-from fcwebapp.db import (
-    init_db,
-    add_hammock,
-    update_user,
-    join_tent,
-    leave_tent,
-    add_tent,
-)
+from fcwebapp.db import init_db, add_hammock, update_user, join_tent, leave_tent, add_tent
 
 
 @app.route("/home")
@@ -97,55 +90,61 @@ def sleeping_board_post(user: UserInfo):
             add_hammock(
                 Hammock(
                     uuid=new_uuid,
-                    name=request.form.get("new-hammock-name"),
+                    name=request.form.get('new-hammock-name'),
                     occupant=user,
                 )
             )
             user.occupying_uuid = new_uuid
             update_user(user)
-        case "tent":
+        case 'tent':
             while new_uuid in tents.keys():
                 new_uuid = uuid.uuid4()
             add_tent(
                 Tent(
                     uuid=new_uuid,
-                    name=request.form.get("new-tent-name"),
-                    capacity=int(request.form.get("new-tent-cap")),
+                    name=request.form.get('new-tent-name'),
+                    capacity=int(request.form.get('new-tent-cap')),
                 )
             )
         case _:
-            print("SOMEONE FUCKED UP AND IT'S NOT A TENT OR HAMMOCK")
-            return redirect("/sleeping_board", code=302)
-    return redirect("/sleeping_board", code=302)
+            print('SOMEONE FUCKED UP AND IT\'S NOT A TENT OR HAMMOCK')
+            return redirect('/sleeping_board', code=302)
+    return redirect('/sleeping_board', code=302)
 
 
-@app.route("/profile")
+@app.route('/profile')
 @needs_auth
 def profiles(user: UserInfo):
-    return render_template("profiles.html", title="Profile", user=user)
+    return render_template('profiles.html', title='Profile', user=user)
+
+@app.route('/admin')
+@needs_auth
+def admin(user: UserInfo):
+    if user.username == 'andyp' or user.username == 'mob':
+        return render_template('admin.html', title='Admin Panel', user=user, event_id=561)
+    return redirect('/home', code=302)
 
 
-@app.route("/profile/edit", methods=["POST"])
+@app.route('/profile/edit', methods=['POST'])
 @needs_auth
 def profile_edit(user: UserInfo):
     for k, v in request.form.items():
         print(k, v)
         match k:
-            case "phone_number":
-                num = v.strip().replace(" ", "").replace("-", "").replace("_", "")
+            case 'phone_number':
+                num = v.strip().replace(' ', '').replace('-', '').replace('_', '')
                 user.phone_number = num
-            case "allergy":
+            case 'allergy':
                 user.allergy = v
-            case "diet":
+            case 'diet':
                 user.diet = v
-            case "health":
+            case 'health':
                 user.health = v
-            case "in_ride_toggle":
+            case 'in_ride_toggle':
                 user.in_ride = not user.in_ride
             case _:
-                return redirect("/profile", code=302)
+                return redirect('/profile', code=302)
         update_user(user)
-    return redirect("/profile", code=302)
-
+    return redirect('/profile', code=302)
 
 init_db()
