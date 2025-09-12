@@ -138,7 +138,7 @@ def add_hammock(hammock: Hammock):
 def rm_hammock(hammock: Hammock):
     cursor = db.cursor()
     try:
-        cursor.execute("DELETE FROM hammocks WHERE uuid = %s",
+        cursor.execute("DELETE FROM hammocks WHERE id = %s",
                        (hammock.uuid,))
         db.commit()
         hammocks.pop(hammock.uuid)

@@ -34,7 +34,9 @@
         {% if user.occupying_uuid == None and len(tent.occupants) < tent.capacity %}
         <td class="text-right">
             <form class="form-inline" method="post">
-                <input type="text" id="join-tent-id" name="join-tent-id" hidden value="{{tent.uuid}}">
+                <input type="text" name="sleeptype" hidden value="tent">
+                <input type="text" name="action" hidden value="join">
+                <input type="text" name="occupying" hidden value="{{tent.uuid}}">
                 <label class="align-middle">Join</label>
                 <button style="height: unset"
                         class="material-icons-outlined form-control w-auto custom-control-inline align-middle m-0 p-0">
@@ -45,7 +47,9 @@
         {% elif user.occupying_uuid == tent.uuid %}
         <td class="text-right">
             <form class="form-inline" method="post">
-                <input type="text" id="leave-tent-id" name="leave-tent-id" hidden value="{{tent.uuid}}">
+                <input type="text" name="sleeptype" hidden value="tent">
+                <input type="text" name="action" hidden value="leave">
+                <input type="text" name="occupying" hidden value="{{tent.uuid}}">
                 <label class="align-middle">Leave</label>
                 <button style="height: unset"
                         class="material-icons-outlined form-control w-auto custom-control-inline align-middle m-0 p-0">
@@ -62,16 +66,16 @@
     {% endfor %}
     <tr>
         <form class="form-inline" method="post">
+            <input type="text" name="sleeptype" hidden value="tent">
+            <input type="text" name="action" hidden value="add">
             <td class="py-0">
                 <label for="new-tent-name" hidden>New Tent</label>
-                <input id="new-tent-name" name="new-tent-name"
-                       class="form-control text-secondary"
-                       type="text"
-                       placeholder="Add Tent Here!">
+                <input id="new-tent-name" name="occupying" class="form-control text-secondary"
+                       type="text" placeholder="Add Tent Here!">
             </td>
             <td class="py-0">
                 <label for="new-tent-cap" hidden>Capacity</label>
-                <input id="new-tent-cap" name="new-tent-cap" type="number"
+                <input id="new-tent-cap" name="capacity" type="number"
                        class="form-control w-auto text-secondary" min="1" max="99"
                        placeholder="1">
             </td>
@@ -100,6 +104,7 @@
         <th>
             Member
         </th>
+        <th class="col-sm-1"></th>
     </tr>
     </thead>
     <tbody>
@@ -111,18 +116,33 @@
         <td>
             <a href="#" class="member text-secondary">{{hammock.occupant.name}}</a>
         </td>
+        {% if user.occupying_uuid == hammock.uuid %}
+        <td class="text-right">
+            <form class="form-inline" method="post">
+                <input type="text" name="sleeptype" hidden value="hammock">
+                <input type="text" name="action" hidden value="leave">
+                <input type="text" name="occupying" hidden value="{{hammock.uuid}}">
+                <label class="align-middle">Leave</label>
+                <button style="height: unset"
+                        class="material-icons-outlined form-control w-auto custom-control-inline align-middle m-0 p-0">
+                    do_not_disturb_on
+                </button>
+            </form>
+        </td>
+        {% endif %}
     </tr>
     {% endfor %}
     {% if user.occupying_uuid == None %}
     <tr>
         <form class="form-inline" method="post">
+            <input type="text" name="sleeptype" hidden value="hammock">
+            <input type="text" name="action" hidden value="add">
             <td class="py-0">
                 <label for="new-hammock-name" hidden>New Hammock</label>
-                <input id="new-hammock-name" name="new-hammock-name"
-                       class="form-control"
-                       type="text"
+                <input id="new-hammock-name" name="occupying" class="form-control" type="text"
                        placeholder="Add Hammock Here!">
             </td>
+            <td></td>
             <td class="text-right">
                 <span class="align-middle">Add</span>
                 <button style="height: unset" id="new-hammock-make"
