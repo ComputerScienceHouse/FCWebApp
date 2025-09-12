@@ -35,11 +35,7 @@ auth = OIDCAuthentication({"csh": CSH_AUTH_CONFIG, "google": GOOGLE_AUTH_CONFIG}
 
 @app.route("/")
 def index():
-    return """
-    <p>Hello, world! 2</p>
-    <a href="/auth/google">Click here 4 google</a>
-    <a href="/auth/csh">Click here 4 csh</a>
-    """
+    return render_template("login.html")
 
 
 from fcwebapp.utils import needs_auth
