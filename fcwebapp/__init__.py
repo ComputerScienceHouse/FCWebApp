@@ -43,7 +43,7 @@ def index():
 
 
 from fcwebapp.utils import needs_auth
-from fcwebapp.db import init_db, add_hammock, update_user, join_tent, leave_tent, add_tent
+from fcwebapp.db import init_db, add_hammock, update_user, join_tent, leave_tent, add_tent, rm_hammock
 
 
 @app.route("/home")
@@ -70,42 +70,46 @@ def sleeping_board(user: UserInfo):
 @app.route("/sleeping_board", methods=["POST"])
 @needs_auth
 def sleeping_board_post(user: UserInfo):
-    read_value = next(iter(request.form.keys())).split("-")
-    sleeptype = read_value[1]
-    if read_value[0] == "join":
-        tent_id = uuid.UUID(request.form.get("join-tent-id"))
-        join_tent(tents[tent_id], user)
-        return redirect("/sleeping_board", code=302)
-    if read_value[0] == "leave":
-        tent_id = uuid.UUID(request.form.get("leave-tent-id"))
-        leave_tent(tents[tent_id], user)
-        return redirect("/sleeping_board", code=302)
-    new_uuid = uuid.uuid4()
-    match sleeptype:
-        case "hammock":
-            if user.occupying_uuid is not None:
-                return redirect("/sleeping_board", code=302)
-            while new_uuid in hammocks.keys():
+    """
+    sleeptype - hammock or tent
+    action - add, join, leave
+    occupying - id or name
+    """
+    data = request.form
+    sleeptype = data['sleeptype']
+    occupying = data['occupying']
+    capacity = data.get('capacity')
+    match data['action']:
+        case "add":
+            new_uuid = uuid.uuid4()
+            while new_uuid in hammocks.keys() or new_uuid in tents.keys():
                 new_uuid = uuid.uuid4()
-            add_hammock(
-                Hammock(
-                    uuid=new_uuid,
-                    name=request.form.get('new-hammock-name'),
-                    occupant=user,
-                )
-            )
-            user.occupying_uuid = new_uuid
+            if sleeptype == "hammock":
+                add_hammock(Hammock(new_uuid, name=occupying, occupant=user))
+                user.occupying_uuid = new_uuid
+                update_user(user)
+            elif sleeptype == "tent":
+                add_tent(Tent(new_uuid, name=occupying, capacity=capacity))
+        case "join":
+            occupying = uuid.UUID(occupying)
+            if sleeptype != "tent" or occupying not in tents.keys():
+                return redirect("/sleeping_board", code=400)
+            join_tent(tents[occupying], user)
+            return redirect("/sleeping_board", code=302)
+        case "leave":
+            occupying = uuid.UUID(occupying)
+            if sleeptype == "hammock":
+                if occupying not in hammocks.keys():
+                    return redirect("/sleeping_board", code=400)
+                rm_hammock(hammocks[occupying])
+            elif sleeptype == "tent":
+                if occupying not in tents.keys():
+                    return redirect("/sleeping_board", code=400)
+                leave_tent(tents[occupying], user)
+            else:
+                return redirect("/sleeping_board", code=400)
+            user.occupying_uuid = None
             update_user(user)
-        case 'tent':
-            while new_uuid in tents.keys():
-                new_uuid = uuid.uuid4()
-            add_tent(
-                Tent(
-                    uuid=new_uuid,
-                    name=request.form.get('new-tent-name'),
-                    capacity=int(request.form.get('new-tent-cap')),
-                )
-            )
         case _:
             print('SOMEONE FUCKED UP AND IT\'S NOT A TENT OR HAMMOCK')
             return redirect('/sleeping_board', code=302)
@@ -117,11 +121,13 @@ def sleeping_board_post(user: UserInfo):
 def profiles(user: UserInfo):
     return render_template('profiles.html', title='Profile', user=user)
 
+
 @app.route('/admin')
 @needs_auth
 def admin(user: UserInfo):
     # if user.username == 'andyp' or user.username == 'mob':
-    return render_template('admin.html', title='Admin Panel', user=user, users=sorted(users.values(), key=lambda u: u.name), event_id=561)
+    return render_template('admin.html', title='Admin Panel', user=user,
+                           users=sorted(users.values(), key=lambda u: u.name), event_id=561)
     return redirect('/home', code=302)
 
 
@@ -146,5 +152,6 @@ def profile_edit(user: UserInfo):
                 return redirect('/profile', code=302)
         update_user(user)
     return redirect('/profile', code=302)
+
 
 init_db()
