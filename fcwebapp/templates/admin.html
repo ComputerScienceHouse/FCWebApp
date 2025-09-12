@@ -3,6 +3,29 @@
 {% block body %}
 <h1>Admin Panel</h1>
 <h2>Connected to <a href="https://rideboard.csh.rit.edu/event/{{event_id}}">Rideboard Event {{event_id}}</a></h2>
-<p>View other users?</p>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Name(User)</th>
+        <th>Email</th>
+        <th>Phone #</th>
+        <th>Diet</th>
+        <th>Allergies</th>
+        <th>Health</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for user in users %}
+    <tr>
+        <td>{{ user.name }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.phone_number }}</td>
+        <td>{{ user.diet }}</td>
+        <td>{{ user.allergies }}</td>
+        <td>{{ user.health }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
 <p>View statistics?</p>
 {% endblock %}

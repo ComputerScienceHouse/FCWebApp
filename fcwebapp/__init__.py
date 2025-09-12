@@ -6,7 +6,7 @@ from flask import Flask, render_template, request, redirect
 from flask_pyoidc import OIDCAuthentication
 from flask_pyoidc.provider_configuration import ProviderConfiguration, ClientMetadata
 
-from fcwebapp.models import UserInfo, tents, hammocks, Hammock, Tent
+from fcwebapp.models import UserInfo, tents, hammocks, Hammock, Tent, users
 
 app = Flask(__name__)
 
@@ -120,8 +120,8 @@ def profiles(user: UserInfo):
 @app.route('/admin')
 @needs_auth
 def admin(user: UserInfo):
-    if user.username == 'andyp' or user.username == 'mob':
-        return render_template('admin.html', title='Admin Panel', user=user, event_id=561)
+    # if user.username == 'andyp' or user.username == 'mob':
+    return render_template('admin.html', title='Admin Panel', user=user, users=sorted(users.values(), key=lambda u: u.name), event_id=561)
     return redirect('/home', code=302)
 
 
