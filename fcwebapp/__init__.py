@@ -136,7 +136,8 @@ def profile_edit(user: UserInfo):
         match k:
             case "phone_number":
                 num = re.sub("\\D", "", v)
-                if len(num) < 10:
+                # shortest phone number 9 (Sweden) longest phone number 15 (E.164)
+                if len(num) < 9 or len(num) > 15:
                     return redirect('/profile',code=302)
                 else:
                     user.phone_number = num
