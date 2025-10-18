@@ -1,4 +1,5 @@
 import os
+import re
 import uuid
 from datetime import datetime
 
@@ -133,9 +134,12 @@ def profile_edit(user: UserInfo):
     for k, v in request.form.items():
         print(k, v)
         match k:
-            case 'phone_number':
-                num = v.strip().replace(' ', '').replace('-', '').replace('_', '')
-                user.phone_number = num
+            case "phone_number":
+                num = re.sub("\\D", "", v)
+                if len(num) < 10:
+                    return redirect('/profile',code=302)
+                else:
+                    user.phone_number = num
             case 'allergy':
                 user.allergy = v
             case 'diet':
